@@ -1,4 +1,4 @@
 PRBuilderStatus
 ===============
 
-A Symfony project created on April 18, 2016, 12:06 pm.
+Set the status on the pull request to access the PR Builder in an easy way

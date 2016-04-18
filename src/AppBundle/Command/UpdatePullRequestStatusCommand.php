@@ -28,6 +28,11 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
                 InputArgument::REQUIRED,
                 'The URL to put on the detail inside commit status'
             )
+            ->addArgument(
+                'status',
+                InputArgument::REQUIRED,
+                'Status of the job'
+            )
         ;
     }
 
@@ -36,8 +41,9 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $sha1 = $input->getArgument('sha1');
-        $url = $input->getArgument('url');
+        $sha1   = $input->getArgument('sha1');
+        $url    = $input->getArgument('url');
+        $status = $input->getArgument('status');
 
         $container = $this->getContainer();
 
@@ -49,10 +55,21 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
         $client = new Client();
         $client->authenticate($user, $password, Client::AUTH_HTTP_PASSWORD);
 
+        switch ($status) {
+            case 'success':
+                $comment = "The pull request has been deployed";
+                break;
+            case 'failed':
+                $comment = "The pull request cannot be deployed";
+                break;
+            default:
+                $comment = "The pull request is trying to be deployed";
+        }
+
         $params = [
-            'state'       => 'success',
+            'state'       => $status,
             'target_url'  => $url,
-            'description' => 'The pull request has been deployed',
+            'description' => $comment,
             'context'     => 'tower/pr-builder',
         ];
 

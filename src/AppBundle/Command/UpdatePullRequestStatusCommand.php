@@ -68,14 +68,13 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
 
         $params = [
             'state'       => $status,
-            'target_url'  => $url,
+            'target_url'  => ($status == 'success') ? $url : null,
             'description' => $comment,
             'context'     => 'tower/pr-builder',
         ];
 
         $response = $client->api('repos')->statuses()->create($owner, $repository, $sha1, $params);
-
-        $output->writeln($response);
+        $output->writeln($response['id']);
     }
 }
 

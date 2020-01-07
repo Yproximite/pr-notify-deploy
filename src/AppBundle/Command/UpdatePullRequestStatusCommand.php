@@ -59,7 +59,8 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
             case 'success':
                 $comment = "The pull request has been deployed";
                 break;
-            case 'failed':
+            case 'error':
+            case 'failure':
                 $comment = "The pull request cannot be deployed";
                 break;
             default:

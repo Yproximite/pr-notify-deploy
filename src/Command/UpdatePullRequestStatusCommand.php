@@ -1,22 +1,34 @@
 <?php
 
-namespace AppBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+namespace App\Command;
+
+
+use Github\Client;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Github\Client;
 
-class UpdatePullRequestStatusCommand extends ContainerAwareCommand
+class UpdatePullRequestStatusCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
+    protected static $defaultName = 'deployment:status';
+
+    private Client $client;
+    private string $githubOwner;
+    private string $githubRepository;
+
+    public function __construct(Client $client, string $githubOwner, string $githubRepository, string $name = null)
+    {
+        parent::__construct($name);
+        $this->client = $client;
+        $this->githubOwner = $githubOwner;
+        $this->githubRepository = $githubRepository;
+    }
+
     protected function configure()
     {
         $this
-            ->setName('deployment:status')
             ->setDescription('Greet someone')
             ->addArgument(
                 'sha1',
@@ -36,24 +48,11 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $sha1   = $input->getArgument('sha1');
         $url    = $input->getArgument('url');
         $status = $input->getArgument('status');
-
-        $container = $this->getContainer();
-
-        $user       = $container->getParameter('github_user');
-        $password   = $container->getParameter('github_password');
-        $owner      = $container->getParameter('github_owner');
-        $repository = $container->getParameter('github_repository');
-
-        $client = new Client();
-        $client->authenticate($user, $password, Client::AUTH_HTTP_PASSWORD);
 
         switch ($status) {
             case 'success':
@@ -74,8 +73,7 @@ class UpdatePullRequestStatusCommand extends ContainerAwareCommand
             'context'     => 'tower/pr-builder',
         ];
 
-        $response = $client->api('repos')->statuses()->create($owner, $repository, $sha1, $params);
+        $response = $this->client->api('repos')->statuses()->create($this->githubOwner, $this->githubRepository, $sha1, $params);
         $output->writeln($response['id']);
     }
 }
-

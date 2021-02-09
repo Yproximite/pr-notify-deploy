@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdatePullRequestStatusCommand extends Command
 {
+    protected static $defaultName = 'deployment:status';
+
     private Client $client;
     private string $githubOwner;
     private string $githubRepository;
@@ -27,7 +29,6 @@ class UpdatePullRequestStatusCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('deployment:status')
             ->setDescription('Greet someone')
             ->addArgument(
                 'sha1',

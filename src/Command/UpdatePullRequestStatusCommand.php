@@ -48,7 +48,7 @@ class UpdatePullRequestStatusCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $sha1   = $input->getArgument('sha1');
         $url    = $input->getArgument('url');
@@ -73,7 +73,15 @@ class UpdatePullRequestStatusCommand extends Command
             'context'     => 'tower/pr-builder',
         ];
 
-        $response = $this->client->api('repos')->statuses()->create($this->githubOwner, $this->githubRepository, $sha1, $params);
-        $output->writeln($response['id']);
+        try {
+            $response = $this->client->api('repos')->statuses()->create($this->githubOwner, $this->githubRepository, $sha1, $params);
+            $output->writeln($response['id']);
+
+            return 0;
+        } catch (\Exception $e) {
+            $this->getApplication()->renderThrowable($e, $output);
+
+            return 1;
+        }
     }
 }

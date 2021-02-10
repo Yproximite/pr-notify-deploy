@@ -79,7 +79,7 @@ class UpdatePullRequestStatusCommand extends Command
 
             return 0;
         } catch (\Exception $e) {
-            $output->writeln($e->getMessage());
+            $this->getApplication()->renderThrowable($e, $output);
 
             return 1;
         }
